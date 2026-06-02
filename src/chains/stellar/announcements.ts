@@ -1,6 +1,7 @@
 import type { Announcement } from './types';
 import { bytesToHex } from './utils';
 import { getDeployment } from './deployments';
+import { Address, xdr } from '@stellar/stellar-sdk';
 
 let stellarSdkPromise: Promise<typeof import('@stellar/stellar-sdk')> | undefined;
 

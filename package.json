@@ -2,6 +2,9 @@
   "name": "@wraith-protocol/sdk",
   "version": "1.4.5",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "react-native": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -17,6 +20,11 @@
       "types": "./dist/chains/stellar/index.d.ts",
       "import": "./dist/chains/stellar/index.js",
       "require": "./dist/chains/stellar/index.cjs"
+    },
+    "./compat/react-native": {
+      "types": "./dist/compat/react-native.d.ts",
+      "import": "./dist/compat/react-native.js",
+      "require": "./dist/compat/react-native.cjs"
     },
     "./chains/solana": {
       "types": "./dist/chains/solana/index.d.ts",

@@ -1,7 +1,6 @@
 import { ed25519 } from '@noble/curves/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { sha256 } from '@noble/hashes/sha256';
-import { StrKey } from '@stellar/stellar-sdk';
 
 /**
  * ed25519 group order used to reduce Stellar stealth scalars.
@@ -126,6 +125,42 @@ export function deriveStealthPubKey(spendingPubKey: Uint8Array, hashScalar: bigi
   return stealthPoint.toRawBytes();
 }
 
+const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const STELLAR_PUBLIC_KEY_VERSION = 6 << 3;
+
+function crc16Xmodem(bytes: Uint8Array): number {
+  let crc = 0x0000;
+  for (const b of bytes) {
+    crc ^= b << 8;
+    for (let i = 0; i < 8; i++) {
+      crc = (crc & 0x8000) !== 0 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    }
+  }
+  return crc;
+}
+
+function base32Encode(bytes: Uint8Array): string {
+  let bits = 0;
+  let value = 0;
+  let output = '';
+
+  for (const byte of bytes) {
+    value = (value << 8) | byte;
+    bits += 8;
+
+    while (bits >= 5) {
+      output += BASE32_ALPHABET[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+
+  if (bits > 0) {
+    output += BASE32_ALPHABET[(value << (5 - bits)) & 31];
+  }
+
+  return output;
+}
+
 /**
  * Converts a 32-byte ed25519 public key into a Stellar `G...` address.
  *
@@ -146,8 +181,19 @@ export function deriveStealthPubKey(spendingPubKey: Uint8Array, hashScalar: bigi
  * @see {@link deriveStealthPubKey}
  */
 export function pubKeyToStellarAddress(pubKeyBytes: Uint8Array): string {
-  // StrKey typings expect Buffer, but Uint8Array works at runtime
-  return (StrKey as any).encodeEd25519PublicKey(pubKeyBytes);
+  if (pubKeyBytes.length !== 32) {
+    throw new Error(`Expected 32-byte ed25519 public key, got ${pubKeyBytes.length}`);
+  }
+
+  const payload = new Uint8Array(1 + pubKeyBytes.length + 2);
+  payload[0] = STELLAR_PUBLIC_KEY_VERSION;
+  payload.set(pubKeyBytes, 1);
+
+  const checksum = crc16Xmodem(payload.subarray(0, 33));
+  payload[33] = checksum & 0xff;
+  payload[34] = (checksum >> 8) & 0xff;
+
+  return base32Encode(payload);
 }
 
 /**
