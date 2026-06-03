@@ -44,6 +44,8 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
+    "bench": "vitest bench --run",
+    "bench:watch": "vitest bench",
     "clean": "rm -rf dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -73,6 +75,7 @@
     "@stellar/stellar-sdk": "^13.1.0",
     "husky": "^9.1.0",
     "prettier": "^3.4.0",
+    "tinybench": "^2.9.0",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
     "vitest": "^3.1.0"
