@@ -17,15 +17,27 @@ export type {
   Conversation,
 } from './agent/types';
 
-export { MultichainScannerPool } from './scanner-pool';
-export type {
-  SupportedChain,
-  ScanInput,
-  EvmScanInput,
-  StellarScanInput,
-  SolanaScanInput,
-  CkbScanInput,
-  ScanResults,
-  ProgressEvent,
-  MultichainScannerPoolOptions,
-} from './scanner-pool';
+export {
+  WraithError,
+  WraithInputError,
+  WraithCryptoError,
+  WraithNetworkError,
+  WraithContractError,
+  WraithBuilderError,
+  InvalidMetaAddressError,
+  InvalidNameError,
+  InvalidSignatureError,
+  InvalidScalarError,
+  KeyDerivationFailedError,
+  ViewTagMismatchError,
+  ECDHFailedError,
+  RPCRequestError,
+  RPCRetryExhaustedError,
+  RetentionExceededError,
+  NameNotFoundError,
+  NameAlreadyRegisteredError,
+  InsufficientAuthError,
+  ContractRevertError,
+  InsufficientBalanceError,
+  UnsupportedAssetError,
+} from './errors';

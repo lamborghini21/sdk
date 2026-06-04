@@ -1,11 +1,5 @@
-/**
- * Network endpoints and contract IDs for a Wraith Stellar deployment.
- *
- * Use this when building integrations that need to submit Stellar transactions,
- * query Soroban events, or call the announcer and names contracts directly.
- *
- * @see {@link getDeployment}
- */
+import { UnsupportedAssetError } from '../../errors';
+
 export interface StellarChainDeployment {
   /** Human-readable network name, for example `testnet`. */
   network: string;
@@ -73,9 +67,7 @@ export const DEPLOYMENTS: Record<string, StellarChainDeployment> = {
 export function getDeployment(chain: string): StellarChainDeployment {
   const deployment = DEPLOYMENTS[chain];
   if (!deployment) {
-    throw new Error(
-      `No Stellar deployment for "${chain}". Available: ${Object.keys(DEPLOYMENTS).join(', ')}`,
-    );
+    throw new UnsupportedAssetError('native', chain);
   }
   return deployment;
 }
