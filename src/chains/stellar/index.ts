@@ -23,6 +23,10 @@ export {
   L,
 } from './scalar';
 export { bytesToHex, hexToBytes } from './utils';
+export { fetchAnnouncements } from './announcements';
+export type { FetchAnnouncementsOptions } from './announcements';
+export { MemoryCache, IndexedDBCache, autoSelectCache } from './cache';
+export type { AnnouncementCache } from './cache';
 export {
   fetchAnnouncements,
   fetchAnnouncementsStream,
@@ -46,6 +50,7 @@ export { DEPLOYMENTS, getDeployment } from './deployments';
 export type { StellarChainDeployment } from './deployments';
 export type {
   HexString,
+  Network,
   StealthKeys,
   StealthMetaAddress,
   GeneratedStealthAddress,

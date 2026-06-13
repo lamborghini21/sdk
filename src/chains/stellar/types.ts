@@ -1,6 +1,10 @@
 /** Hex-encoded value with a `0x` prefix. */
 export type HexString = `0x${string}`;
 
+/** Stellar network identifier. Used as a cache namespace to prevent testnet/mainnet collisions. */
+export type Network = 'testnet' | 'mainnet';
+
+/** Spending and viewing key pairs derived from a wallet signature. */
 /**
  * Spending and viewing key material derived from a Stellar wallet signature.
  *
@@ -77,6 +81,8 @@ export interface Announcement {
   ephemeralPubKey: string;
   /** Hex-encoded metadata; the first byte is the view tag. */
   metadata: string;
+  /** Soroban ledger sequence number where this announcement was emitted. */
+  ledger?: number;
   /** v2 RPC topic bucket (0–255); undefined for v1 announcements. */
   viewTagBucket?: number;
 }
