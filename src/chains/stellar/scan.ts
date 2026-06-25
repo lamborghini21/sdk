@@ -1,4 +1,5 @@
-import { computeSharedSecret, computeViewTag } from './stealth';
+import { ed25519 } from '@noble/curves/ed25519';
+import { computeAnnouncementViewTag, computeSharedSecret, computeViewTag } from './stealth';
 import { hashToScalar, deriveStealthPubKey, pubKeyToStellarAddress, L } from './scalar';
 import { SCHEME_ID, SCHEME_ID_V2 } from './constants';
 import type { Announcement, MatchedAnnouncement } from './types';
@@ -112,13 +113,51 @@ export function checkStealthAddress(
   hashScalar: bigint | null;
   stealthPubKeyBytes: Uint8Array | null;
 } {
-  const sharedSecret = computeSharedSecret(viewingKey, ephemeralPubKey);
+  const viewingPubKey = ed25519.getPublicKey(viewingKey);
+  return checkStealthAddressWithViewingPubKey(
+    ephemeralPubKey,
+    viewingKey,
+    viewingPubKey,
+    spendingPubKey,
+    viewTag,
+  );
+}
 
-  const computedTag = computeViewTag(sharedSecret);
+function checkStealthAddressWithViewingPubKey(
+  ephemeralPubKey: Uint8Array,
+  viewingKey: Uint8Array,
+  viewingPubKey: Uint8Array,
+  spendingPubKey: Uint8Array,
+  viewTag: number,
+): {
+  isMatch: boolean;
+  stealthAddress: string | null;
+  hashScalar: bigint | null;
+  stealthPubKeyBytes: Uint8Array | null;
+} {
+  const computedTag = computeAnnouncementViewTag(ephemeralPubKey, viewingPubKey);
   if (computedTag !== viewTag) {
     return { isMatch: false, stealthAddress: null, hashScalar: null, stealthPubKeyBytes: null };
   }
 
+  try {
+    return deriveStealthAddressFromAnnouncement(ephemeralPubKey, viewingKey, spendingPubKey);
+  } catch {
+    return { isMatch: false, stealthAddress: null, hashScalar: null, stealthPubKeyBytes: null };
+  }
+}
+
+function deriveStealthAddressFromAnnouncement(
+  ephemeralPubKey: Uint8Array,
+  viewingKey: Uint8Array,
+  spendingPubKey: Uint8Array,
+): {
+  isMatch: boolean;
+  stealthAddress: string | null;
+  hashScalar: bigint | null;
+  stealthPubKeyBytes: Uint8Array | null;
+} {
+  const sharedSecret = computeSharedSecret(viewingKey, ephemeralPubKey);
   const hScalar = hashToScalar(sharedSecret);
 
   const stealthPubKeyBytes = deriveStealthPubKey(spendingPubKey, hScalar);
@@ -167,6 +206,7 @@ export function scanAnnouncements(
   spendingScalar: bigint,
 ): MatchedAnnouncement[] {
   const matched: MatchedAnnouncement[] = [];
+  const viewingPubKey = ed25519.getPublicKey(viewingKey);
 
   for (const ann of announcements) {
     if (ann.schemeId !== SCHEME_ID && ann.schemeId !== SCHEME_ID_V2) continue;
@@ -178,7 +218,13 @@ export function scanAnnouncements(
     const ephPubKey = hexToBytes(ann.ephemeralPubKey);
     if (ephPubKey.length !== 32) continue;
 
-    const result = checkStealthAddress(ephPubKey, viewingKey, spendingPubKey, viewTag);
+    const result = checkStealthAddressWithViewingPubKey(
+      ephPubKey,
+      viewingKey,
+      viewingPubKey,
+      spendingPubKey,
+      viewTag,
+    );
 
     if (
       result.isMatch &&
@@ -187,11 +233,65 @@ export function scanAnnouncements(
       result.stealthPubKeyBytes !== null
     ) {
       const stealthPrivateScalar = (spendingScalar + result.hashScalar) % L;
+      if (stealthPrivateScalar <= 0n) continue;
 
       matched.push({
         ...ann,
         stealthPrivateScalar,
         stealthPubKeyBytes: result.stealthPubKeyBytes,
+      });
+    }
+  }
+
+  return matched;
+}
+
+/**
+ * Pre-optimization scanner retained for benchmarks and migration analysis.
+ *
+ * This matches the old Stellar path: every same-scheme announcement pays for
+ * X25519 first, computes the legacy shared-secret tag second, and only then
+ * compares the announced stealth address.
+ */
+export function scanAnnouncementsLegacySharedSecretTag(
+  announcements: Announcement[],
+  viewingKey: Uint8Array,
+  spendingPubKey: Uint8Array,
+  spendingScalar: bigint,
+): MatchedAnnouncement[] {
+  const matched: MatchedAnnouncement[] = [];
+
+  for (const ann of announcements) {
+    if (ann.schemeId !== SCHEME_ID) continue;
+
+    const metadataBytes = hexToBytes(ann.metadata);
+    if (metadataBytes.length === 0) continue;
+    const viewTag = metadataBytes[0];
+
+    const ephPubKey = hexToBytes(ann.ephemeralPubKey);
+    if (ephPubKey.length !== 32) continue;
+
+    let sharedSecret: Uint8Array;
+    try {
+      sharedSecret = computeSharedSecret(viewingKey, ephPubKey);
+    } catch {
+      continue;
+    }
+
+    const computedTag = computeViewTag(sharedSecret);
+    if (computedTag !== viewTag) continue;
+
+    const hScalar = hashToScalar(sharedSecret);
+    const stealthPubKeyBytes = deriveStealthPubKey(spendingPubKey, hScalar);
+    const stealthAddress = pubKeyToStellarAddress(stealthPubKeyBytes);
+
+    if (stealthAddress === ann.stealthAddress) {
+      const stealthPrivateScalar = (spendingScalar + hScalar) % L;
+
+      matched.push({
+        ...ann,
+        stealthPrivateScalar,
+        stealthPubKeyBytes,
       });
     }
   }

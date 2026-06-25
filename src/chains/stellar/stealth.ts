@@ -2,8 +2,11 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { x25519 } from '@noble/curves/ed25519';
 import { sha256 } from '@noble/hashes/sha256';
 import { edwardsToMontgomeryPub, edwardsToMontgomeryPriv } from '@noble/curves/ed25519';
-import type { GeneratedStealthAddress } from './types';
 import { hashToScalar, deriveStealthPubKey, pubKeyToStellarAddress } from './scalar';
+import type { GeneratedStealthAddress } from './types';
+
+const VIEW_TAG_PREFIX = new TextEncoder().encode('wraith:stellar:view-tag:v2:');
+const LEGACY_VIEW_TAG_PREFIX = new TextEncoder().encode('wraith:tag:');
 
 /**
  * Generates a one-time Stellar stealth address for a recipient.
@@ -41,7 +44,7 @@ export function generateStealthAddress(
 
   const sharedSecret = computeSharedSecret(ephSeed, viewingPubKey);
 
-  const viewTag = computeViewTag(sharedSecret);
+  const viewTag = computeAnnouncementViewTag(ephPubKey, viewingPubKey);
 
   const hScalar = hashToScalar(sharedSecret);
 
@@ -103,9 +106,8 @@ export function computeSharedSecret(privateKey: Uint8Array, publicKey: Uint8Arra
  * @see {@link checkStealthAddress}
  */
 export function computeViewTag(sharedSecret: Uint8Array): number {
-  const prefix = new TextEncoder().encode('wraith:tag:');
-  const input = new Uint8Array(prefix.length + sharedSecret.length);
-  input.set(prefix);
-  input.set(sharedSecret, prefix.length);
+  const input = new Uint8Array(LEGACY_VIEW_TAG_PREFIX.length + sharedSecret.length);
+  input.set(LEGACY_VIEW_TAG_PREFIX);
+  input.set(sharedSecret, LEGACY_VIEW_TAG_PREFIX.length);
   return sha256(input)[0];
 }
