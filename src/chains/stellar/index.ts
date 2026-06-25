@@ -9,6 +9,17 @@ export {
   META_ADDRESS_PREFIX,
 } from './constants';
 export { encodeStealthMetaAddress, decodeStealthMetaAddress } from './meta-address';
+export {
+  generateStealthAddress,
+  computeSharedSecret,
+  computeAnnouncementViewTag,
+  computeViewTag,
+} from './stealth';
+export {
+  checkStealthAddress,
+  scanAnnouncements,
+  scanAnnouncementsLegacySharedSecretTag,
+} from './scan';
 export { generateStealthAddress, computeSharedSecret, computeViewTag } from './stealth';
 export { checkStealthAddress, scanAnnouncements, scanAnnouncementsStream } from './scan';
 export { deriveStealthPrivateScalar, signStellarTransaction } from './spend';
