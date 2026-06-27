@@ -9,11 +9,31 @@ export {
   META_ADDRESS_PREFIX,
 } from './constants';
 export { encodeStealthMetaAddress, decodeStealthMetaAddress } from './meta-address';
-export { generateStealthAddress, computeSharedSecret, computeViewTag } from './stealth';
-export { checkStealthAddress, scanAnnouncements, scanAnnouncementsStream } from './scan';
+export {
+  generateStealthAddress,
+  computeSharedSecret,
+  computeAnnouncementViewTag,
+  computeViewTag,
+} from './stealth';
+export {
+  checkStealthAddress,
+  scanAnnouncements,
+  scanAnnouncementsLegacySharedSecretTag,
+} from './scan';
+
 export { deriveStealthPrivateScalar, signStellarTransaction } from './spend';
-export { buildStealthPayment, buildStealthAnnouncement } from './builders';
-export type { BuildStealthPaymentOptions, BuildAnnouncementOptions } from './builders';
+export {
+  buildStealthPayment,
+  buildStealthAnnouncement,
+  prepareStealthAccountForAsset,
+  buildWithdrawCustomAsset,
+} from './builders';
+export type {
+  BuildStealthPaymentOptions,
+  BuildAnnouncementOptions,
+  AssetReceivabilityResult,
+  BuildWithdrawCustomAssetOptions,
+} from './builders';
 export {
   seedToScalar,
   hashToScalar,
