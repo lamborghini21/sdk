@@ -37,6 +37,12 @@ function seedFor(index: number): Uint8Array {
   return seed;
 }
 
+function makeAnnouncementFor(
+  recipient: StealthKeys,
+  ephemeralSeed: Uint8Array,
+  tagScheme: 'legacy-shared-secret' | 'public-announcement',
+): Announcement {
+  const stealth = generateStealthAddress(
 async function makeAnnouncementFor(
   recipient: StealthKeys,
   ephemeralSeed: Uint8Array,
@@ -62,6 +68,23 @@ async function makeAnnouncementFor(
   };
 }
 
+const pools = {
+  legacy: Array.from({ length: POOL_SIZE }, (_, i) =>
+    makeAnnouncementFor(foreignKeys, seedFor(i), 'legacy-shared-secret'),
+  ),
+  optimized: Array.from({ length: POOL_SIZE }, (_, i) =>
+    makeAnnouncementFor(foreignKeys, seedFor(i), 'public-announcement'),
+  ),
+};
+
+const matchingAnnouncements = {
+  legacy: makeAnnouncementFor(keys, seedFor(POOL_SIZE + 1), 'legacy-shared-secret'),
+  optimized: makeAnnouncementFor(keys, seedFor(POOL_SIZE + 1), 'public-announcement'),
+};
+
+function makeDataset(size: number, tagScheme: 'legacy' | 'optimized') {
+  const foreignPool = pools[tagScheme];
+  const matchingAnnouncement = matchingAnnouncements[tagScheme];
 let pools: { legacy: Announcement[]; optimized: Announcement[] } | undefined;
 let matchingAnnouncements: { legacy: Announcement; optimized: Announcement } | undefined;
 
@@ -94,6 +117,22 @@ function makeDataset(size: number, tagScheme: 'legacy' | 'optimized') {
   );
 }
 
+const datasets = new Map(
+  DATASET_SIZES.map((size) => [
+    size,
+    {
+      legacy: makeDataset(size, 'legacy'),
+      optimized: makeDataset(size, 'optimized'),
+    },
+  ]),
+);
+
+describe('Stellar scan benchmark fixtures', () => {
+  test('optimized scanner preserves correctness on the 10k synthetic dataset', () => {
+    const dataset = datasets.get(10_000)?.optimized;
+    expect(dataset).toBeDefined();
+
+    const matched = scanAnnouncements(
 async function getDatasets(): Promise<
   Map<number, { legacy: Announcement[]; optimized: Announcement[] }>
 > {
@@ -123,12 +162,19 @@ describe('Stellar scan benchmark fixtures', () => {
     );
 
     expect(matched).toHaveLength(1);
+    expect(matched[0].stealthAddress).toBe(matchingAnnouncements.optimized.stealthAddress);
     expect(matched[0].stealthAddress).toBe(matchingAnnouncements!.optimized.stealthAddress);
   });
 });
 
 describe('Stellar scan announcement view-tag batching', () => {
   for (const size of DATASET_SIZES) {
+    const dataset = datasets.get(size)!;
+
+    bench(
+      `before: shared-secret view tag (${size.toLocaleString()} announcements)`,
+      () => {
+        scanAnnouncementsLegacySharedSecretTag(
     bench(
       `before: shared-secret view tag (${size.toLocaleString()} announcements)`,
       async () => {
@@ -146,6 +192,8 @@ describe('Stellar scan announcement view-tag batching', () => {
 
     bench(
       `after: public view-tag prefilter (${size.toLocaleString()} announcements)`,
+      () => {
+        scanAnnouncements(
       async () => {
         const datasets = await getDatasets();
         const dataset = datasets.get(size)!;

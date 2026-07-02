@@ -288,6 +288,19 @@ export function scanAnnouncementsLegacySharedSecretTag(
     const computedTag = computeViewTag(sharedSecret);
     if (computedTag !== viewTag) continue;
 
+    const hScalar = hashToScalar(sharedSecret);
+    const stealthPubKeyBytes = deriveStealthPubKey(spendingPubKey, hScalar);
+    const stealthAddress = pubKeyToStellarAddress(stealthPubKeyBytes);
+
+    if (stealthAddress === ann.stealthAddress) {
+      const stealthPrivateScalar = (spendingScalar + hScalar) % L;
+
+      matched.push({
+        ...ann,
+        stealthPrivateScalar,
+        stealthPubKeyBytes,
+      });
+    }
    const hScalar = hashToScalar(sharedSecret);
 const stealthPubKeyBytes = deriveStealthPubKey(spendingPubKey, hScalar);
 const stealthAddress = pubKeyToStellarAddress(stealthPubKeyBytes);
