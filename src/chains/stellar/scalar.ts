@@ -255,8 +255,7 @@ export function signWithScalar(
   scalar: bigint,
   publicKey: Uint8Array,
 ): Uint8Array {
-scalar = scalar % L;
-  scalar = modL(scalar); {
+  if (scalar <= 0n || scalar >= L) {
     throw new Error('Scalar must be in range (0, L)');
   }
   const scalarBytes = scalarToBytes(scalar);

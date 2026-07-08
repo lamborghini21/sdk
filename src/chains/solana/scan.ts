@@ -68,8 +68,7 @@ export function scanAnnouncements(
       result.hashScalar !== null &&
       result.stealthPubKeyBytes !== null
     ) {
-      const stealthPrivateScalar =
-  ((spendingScalar % L) + result.hashScalar) % L;
+      const stealthPrivateScalar = ((spendingScalar % L) + result.hashScalar) % L;
 
       matched.push({
         ...ann,

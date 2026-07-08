@@ -40,10 +40,10 @@ const memo = encodeMemo({ type: 'text', value: 'Payment #123' });
 
 #### Parameters
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `type` | `'none' \| 'id' \| 'text' \| 'hash' \| 'return'` | ✅ | The memo type |
-| `value` | `string \| Uint8Array \| null` | ✅ | The memo value (null for 'none') |
+| Field   | Type                                             | Required | Description                      |
+| ------- | ------------------------------------------------ | -------- | -------------------------------- |
+| `type`  | `'none' \| 'id' \| 'text' \| 'hash' \| 'return'` | ✅       | The memo type                    |
+| `value` | `string \| Uint8Array \| null`                   | ✅       | The memo value (null for 'none') |
 
 #### Return value
 
@@ -72,9 +72,9 @@ const typed = decodeMemo(memo);
 
 #### Parameters
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `memo` | `Memo \| xdr.Memo` | ✅ | The Stellar SDK Memo object |
+| Field  | Type               | Required | Description                 |
+| ------ | ------------------ | -------- | --------------------------- |
+| `memo` | `Memo \| xdr.Memo` | ✅       | The Stellar SDK Memo object |
 
 #### Return value
 
@@ -97,9 +97,9 @@ const memo = extractMemoFromTransaction(transaction);
 
 #### Parameters
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `tx` | `{ memo: Memo \| xdr.Memo }` | ✅ | The Stellar transaction object |
+| Field | Type                         | Required | Description                    |
+| ----- | ---------------------------- | -------- | ------------------------------ |
+| `tx`  | `{ memo: Memo \| xdr.Memo }` | ✅       | The Stellar transaction object |
 
 #### Return value
 
@@ -119,11 +119,13 @@ const tx = new TransactionBuilder(sourceAccount, {
   fee: '100',
   networkPassphrase: Networks.TESTNET,
 })
-  .addOperation(Operation.payment({
-    destination: 'GHIJKLMNOPQRSTUVWXYZ1234567890',
-    asset: Operation.paymentAssetToXDR('native'),
-    amount: '100',
-  }))
+  .addOperation(
+    Operation.payment({
+      destination: 'GHIJKLMNOPQRSTUVWXYZ1234567890',
+      asset: Operation.paymentAssetToXDR('native'),
+      amount: '100',
+    }),
+  )
   .addMemo(encodeMemo({ type: 'text', value: 'Invoice #12345' }))
   .setTimeout(30)
   .build();
@@ -136,11 +138,13 @@ const tx = new TransactionBuilder(sourceAccount, {
   fee: '100',
   networkPassphrase: Networks.TESTNET,
 })
-  .addOperation(Operation.payment({
-    destination: 'GHIJKLMNOPQRSTUVWXYZ1234567890',
-    asset: Operation.paymentAssetToXDR('native'),
-    amount: '100',
-  }))
+  .addOperation(
+    Operation.payment({
+      destination: 'GHIJKLMNOPQRSTUVWXYZ1234567890',
+      asset: Operation.paymentAssetToXDR('native'),
+      amount: '100',
+    }),
+  )
   .addMemo(encodeMemo({ type: 'id', value: '99999' }))
   .setTimeout(30)
   .build();
@@ -168,12 +172,12 @@ import { decodeMemo, extractMemoFromTransaction } from '@wraith-protocol/sdk/cha
 // Decode a Memo object directly
 const memo = Memo.text('Payment #123');
 const typed = decodeMemo(memo);
-console.log(typed.type);  // 'text'
+console.log(typed.type); // 'text'
 console.log(typed.value); // 'Payment #123'
 
 // Extract from a transaction
 const txMemo = extractMemoFromTransaction(transaction);
-console.log(txMemo.type);  // 'text'
+console.log(txMemo.type); // 'text'
 console.log(txMemo.value); // 'Payment #123'
 ```
 
@@ -184,7 +188,7 @@ import { extractMemoFromTransaction } from '@wraith-protocol/sdk/chains/stellar'
 
 function formatMemoForDisplay(tx: any): string {
   const memo = extractMemoFromTransaction(tx);
-  
+
   switch (memo.type) {
     case 'none':
       return 'No memo';
@@ -246,15 +250,15 @@ try {
 The SDK exports memo validation constants:
 
 ```ts
-import { 
-  TEXT_MEMO_MAX_BYTES, 
-  HASH_MEMO_BYTES, 
-  ID_MEMO_MAX 
+import {
+  TEXT_MEMO_MAX_BYTES,
+  HASH_MEMO_BYTES,
+  ID_MEMO_MAX,
 } from '@wraith-protocol/sdk/chains/stellar';
 
 console.log(TEXT_MEMO_MAX_BYTES); // 28
-console.log(HASH_MEMO_BYTES);      // 32
-console.log(ID_MEMO_MAX);          // 18446744073709551615n
+console.log(HASH_MEMO_BYTES); // 32
+console.log(ID_MEMO_MAX); // 18446744073709551615n
 ```
 
 ---
@@ -272,6 +276,7 @@ class MemoValidationError extends Error {
 ```
 
 Common error messages:
+
 - `"Text memo must be at most 28 bytes, got X bytes"`
 - `"ID memo value must be a valid uint64 string, got X"`
 - `"Hash memo must be exactly 32 bytes, got X bytes"`
@@ -342,12 +347,12 @@ if (memo.type !== 'none') {
 
 ## Comparison with Stellar SDK Primitives
 
-| Feature | Stellar SDK | Wraith SDK |
-|---|---|---|---|
-| **Type safety** | Untyped | Typed `TypedMemo` interface |
-| **Validation** | Manual | Built-in with clear errors |
-| **Extraction** | Manual access to `tx.memo` | `extractMemoFromTransaction()` helper |
-| **Decoding** | Manual switch on `memo.switch()` | `decodeMemo()` helper |
-| **Error handling** | Runtime errors | `MemoValidationError` with messages |
+| Feature            | Stellar SDK                      | Wraith SDK                            |
+| ------------------ | -------------------------------- | ------------------------------------- |
+| **Type safety**    | Untyped                          | Typed `TypedMemo` interface           |
+| **Validation**     | Manual                           | Built-in with clear errors            |
+| **Extraction**     | Manual access to `tx.memo`       | `extractMemoFromTransaction()` helper |
+| **Decoding**       | Manual switch on `memo.switch()` | `decodeMemo()` helper                 |
+| **Error handling** | Runtime errors                   | `MemoValidationError` with messages   |
 
 The Wraith SDK helpers provide a more ergonomic and safer interface for working with memos.

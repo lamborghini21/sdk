@@ -1,4 +1,14 @@
-import { Asset, Operation, TransactionBuilder, Account, Contract, Address, nativeToScVal, xdr } from '@stellar/stellar-sdk';
+import {
+  Asset,
+  Operation,
+  TransactionBuilder,
+  Account,
+  Contract,
+  Address,
+  Claimant,
+  nativeToScVal,
+  xdr,
+} from '@stellar/stellar-sdk';
 import { SCHEME_ID } from './constants';
 import { generateStealthAddress } from './stealth';
 import { decodeStealthMetaAddress } from './meta-address';
@@ -185,7 +195,7 @@ export function buildPathStealthPayment(
       Operation.createClaimableBalance({
         asset: receiveAsset,
         amount: destAmount,
-        claimants: [new Operation.CreateClaimableBalance.Claimant(stealthResult.stealthAddress, Operation.CreateClaimableBalance.Claimant.predicateUnconditional())],
+        claimants: [new Claimant(stealthResult.stealthAddress, Claimant.predicateUnconditional())],
       }),
     );
   }
@@ -294,9 +304,7 @@ export async function findStrictReceivePath(
   const url = horizonUrl || deployment.horizonUrl;
 
   // Build Horizon asset strings
-  const sendAssetStr = sendAsset.isNative()
-    ? 'native'
-    : `${sendAsset.code}:${sendAsset.issuer}`;
+  const sendAssetStr = sendAsset.isNative() ? 'native' : `${sendAsset.code}:${sendAsset.issuer}`;
   const receiveAssetStr = receiveAsset.isNative()
     ? 'native'
     : `${receiveAsset.code}:${receiveAsset.issuer}`;

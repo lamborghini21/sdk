@@ -148,17 +148,17 @@ export function encodeMemo(memo: TypedMemo): Memo {
     case 'hash': {
       const hashValue = normalizeBufferValue(value, 'Hash');
       validateHashMemoLength(hashValue, 'Hash');
-      return Memo.hash(hashValue);
+      return Memo.hash(Buffer.from(hashValue));
     }
 
     case 'return': {
       const returnValue = normalizeBufferValue(value, 'Return');
       validateHashMemoLength(returnValue, 'Return');
-      return Memo.return(returnValue);
+      return Memo.return(Buffer.from(returnValue).toString('hex'));
     }
 
     default:
-      throw new MemoValidationError(`Unknown memo type: ${(type as string)}`);
+      throw new MemoValidationError(`Unknown memo type: ${type as string}`);
   }
 }
 
@@ -179,37 +179,38 @@ export function encodeMemo(memo: TypedMemo): Memo {
  */
 export function decodeMemo(memo: Memo | xdr.Memo): TypedMemo {
   if (memo instanceof Memo) {
-    switch (memo.switch().name) {
-      case 'memoNone':
+    switch (memo.type) {
+      case 'none':
         return { type: 'none', value: null };
-      case 'memoId':
-        return { type: 'id', value: memo.value().toString() };
-      case 'memoText':
-        return { type: 'text', value: memo.value().toString() };
-      case 'memoHash':
-        return { type: 'hash', value: Buffer.from(memo.value()) };
-      case 'memoReturn':
-        return { type: 'return', value: Buffer.from(memo.value()) };
+      case 'id':
+        return { type: 'id', value: String(memo.value) };
+      case 'text':
+        return { type: 'text', value: String(memo.value) };
+      case 'hash':
+        return { type: 'hash', value: Buffer.from(memo.value as Uint8Array) };
+      case 'return':
+        return { type: 'return', value: Buffer.from(memo.value as Uint8Array) };
       default:
-        throw new MemoValidationError(`Unknown memo type: ${memo.switch().name}`);
+        throw new MemoValidationError(`Unknown memo type: ${memo.type}`);
     }
   }
 
   // Handle xdr.Memo directly
   const xdrMemo = memo as xdr.Memo;
-  switch (xdrMemo.switch().name) {
+  const switchName = xdrMemo.switch().name;
+  switch (switchName) {
     case 'memoNone':
       return { type: 'none', value: null };
     case 'memoId':
-      return { type: 'id', value: xdrMemo.value().toString() };
+      return { type: 'id', value: String(xdrMemo.value()) };
     case 'memoText':
-      return { type: 'text', value: xdrMemo.value().toString() };
+      return { type: 'text', value: String(xdrMemo.value()) };
     case 'memoHash':
-      return { type: 'hash', value: Buffer.from(xdrMemo.value()) };
+      return { type: 'hash', value: Buffer.from(xdrMemo.value() as Uint8Array) };
     case 'memoReturn':
-      return { type: 'return', value: Buffer.from(xdrMemo.value()) };
+      return { type: 'return', value: Buffer.from(xdrMemo.value() as Uint8Array) };
     default:
-      throw new MemoValidationError(`Unknown memo type: ${xdrMemo.switch().name}`);
+      throw new MemoValidationError(`Unknown memo type: ${switchName}`);
   }
 }
 

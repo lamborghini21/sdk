@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Asset, Keypair, Networks, Operation } from '@stellar/stellar-sdk';
-import { buildPathStealthPayment, findStrictReceivePath } from '../../../src/chains/stellar/path-payment';
+import {
+  buildPathStealthPayment,
+  findStrictReceivePath,
+} from '../../../src/chains/stellar/path-payment';
 import { deriveStealthKeys } from '../../../src/chains/stellar/keys';
 import { encodeStealthMetaAddress } from '../../../src/chains/stellar/meta-address';
 
@@ -185,9 +188,7 @@ describe('findStrictReceivePath', () => {
     expect(result.sourceAmount).toBe('50.0');
     expect(result.path).toEqual([]);
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/paths/strict-receive?'),
-    );
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/paths/strict-receive?'));
   });
 
   it('parses path with intermediate assets', async () => {
@@ -203,7 +204,11 @@ describe('findStrictReceivePath', () => {
           destination_amount: '100.0',
           destination_asset: 'native',
           path: [
-            { asset_type: 'credit_alphanum4', asset_code: 'USDT', asset_issuer: 'G...' },
+            {
+              asset_type: 'credit_alphanum4',
+              asset_code: 'USDT',
+              asset_issuer: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ',
+            },
           ],
         },
       ],

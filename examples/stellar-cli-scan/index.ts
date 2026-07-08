@@ -21,9 +21,7 @@ async function main() {
     console.error('Copy .env.example to .env and fill in the values.');
     process.exit(1);
   }
-  const secretKeyBytes = new Uint8Array(
-    secretKeyHex.match(/.{1,2}/g)!.map((b) => parseInt(b, 16)),
-  );
+  const secretKeyBytes = new Uint8Array(secretKeyHex.match(/.{1,2}/g)!.map((b) => parseInt(b, 16)));
   const keys = deriveStealthKeys(secretKeyBytes);
   console.log('Viewing key:', bytesToHex(keys.viewingKey));
   console.log('Spending pub key:', bytesToHex(keys.spendingPubKey));

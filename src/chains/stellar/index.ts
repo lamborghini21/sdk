@@ -43,8 +43,12 @@ export {
   L,
 } from './scalar';
 export { bytesToHex, hexToBytes } from './utils';
-export { fetchAnnouncements, RetentionExceededError } from './announcements';
-export type { FetchAnnouncementsOptions, FetchAnnouncementsResult } from './announcements';
+export {
+  fetchAnnouncementsStream,
+  RetentionExceededError,
+  parseAnnouncementEvent,
+} from './announcements';
+export type { FetchAnnouncementsOptions } from './announcements';
 export { MemoryCache, IndexedDBCache, autoSelectCache } from './cache';
 export type { AnnouncementCache } from './cache';
 
@@ -77,7 +81,12 @@ export type {
 export { buildStellarSwapAndStealth } from './swap';
 export type { BuildStellarSwapAndStealthOptions, SwapAndStealthResult } from './swap';
 export { buildPathStealthPayment, findStrictReceivePath } from './path-payment';
-export type { BuildPathStealthPaymentOptions, PathStealthPaymentResult, FindStrictReceivePathOptions, StrictReceivePathResult } from './path-payment';
+export type {
+  BuildPathStealthPaymentOptions,
+  PathStealthPaymentResult,
+  FindStrictReceivePathOptions,
+  StrictReceivePathResult,
+} from './path-payment';
 export { encodeMemo, decodeMemo, extractMemoFromTransaction } from './memo';
 export type { MemoType, MemoValue, TypedMemo } from './memo';
 export { MemoValidationError, TEXT_MEMO_MAX_BYTES, HASH_MEMO_BYTES, ID_MEMO_MAX } from './memo';

@@ -41,11 +41,11 @@ const LEGACY_VIEW_TAG_PREFIX = new TextEncoder().encode('wraith:tag:');
  *
  * @see {@link scanAnnouncements} to detect announcements for generated addresses.
  */
-export async function generateStealthAddress(
+export function generateStealthAddress(
   spendingPubKey: Uint8Array,
   viewingPubKey: Uint8Array,
   ephemeralSeed?: Uint8Array,
-): Promise<GeneratedStealthAddress> {
+): GeneratedStealthAddress {
   const ephSeed = ephemeralSeed ?? ed25519.utils.randomPrivateKey();
   const ephPubKey = ed25519.getPublicKey(ephSeed);
 
@@ -57,7 +57,7 @@ export async function generateStealthAddress(
 
   const stealthPubKeyBytes = deriveStealthPubKey(spendingPubKey, hScalar);
 
-  const stealthAddress = await pubKeyToStellarAddress(stealthPubKeyBytes);
+  const stealthAddress = pubKeyToStellarAddress(stealthPubKeyBytes);
 
   return {
     stealthAddress,

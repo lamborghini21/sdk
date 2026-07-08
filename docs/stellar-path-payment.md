@@ -37,27 +37,27 @@ const { transaction, stealthResult } = buildPathStealthPayment(options);
 
 #### Parameters
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `sender` | `string` | ✅ | Public key (G...) of the sender |
-| `sequence` | `string` | ✅ | Current sequence number of the sender account |
-| `sendAsset` | `Asset` | ✅ | Asset the sender is spending |
-| `receiveAsset` | `Asset` | ✅ | Asset the stealth address should receive |
-| `recipientMeta` | `string` | ✅ | Encoded stealth meta-address (`st:xlm:...`) |
-| `sendMax` | `string` | ✅ | Maximum amount of `sendAsset` to spend (slippage protection) |
-| `destAmount` | `string` | ✅ | Exact amount of `receiveAsset` the stealth address receives |
-| `announcerContract` | `string` | ✅ | Address of the Wraith announcer contract |
-| `networkPassphrase` | `string` | ✅ | Stellar network passphrase |
-| `path` | `Asset[]` | ❌ | Intermediate assets for the swap route |
-| `fee` | `string` | ❌ | Base fee in stroops (default: `"100"`) |
-| `_ephemeralSeed` | `Uint8Array` | ❌ | Deterministic seed for testing only |
+| Field               | Type         | Required | Description                                                  |
+| ------------------- | ------------ | -------- | ------------------------------------------------------------ |
+| `sender`            | `string`     | ✅       | Public key (G...) of the sender                              |
+| `sequence`          | `string`     | ✅       | Current sequence number of the sender account                |
+| `sendAsset`         | `Asset`      | ✅       | Asset the sender is spending                                 |
+| `receiveAsset`      | `Asset`      | ✅       | Asset the stealth address should receive                     |
+| `recipientMeta`     | `string`     | ✅       | Encoded stealth meta-address (`st:xlm:...`)                  |
+| `sendMax`           | `string`     | ✅       | Maximum amount of `sendAsset` to spend (slippage protection) |
+| `destAmount`        | `string`     | ✅       | Exact amount of `receiveAsset` the stealth address receives  |
+| `announcerContract` | `string`     | ✅       | Address of the Wraith announcer contract                     |
+| `networkPassphrase` | `string`     | ✅       | Stellar network passphrase                                   |
+| `path`              | `Asset[]`    | ❌       | Intermediate assets for the swap route                       |
+| `fee`               | `string`     | ❌       | Base fee in stroops (default: `"100"`)                       |
+| `_ephemeralSeed`    | `Uint8Array` | ❌       | Deterministic seed for testing only                          |
 
 #### Return value
 
 ```ts
 interface PathStealthPaymentResult {
-  transaction: Transaction;  // Unsigned transaction to sign and submit
-  stealthResult: GeneratedStealthAddress;  // Generated stealth account details
+  transaction: Transaction; // Unsigned transaction to sign and submit
+  stealthResult: GeneratedStealthAddress; // Generated stealth account details
 }
 ```
 
@@ -73,20 +73,20 @@ const { sourceAmount, path } = await findStrictReceivePath(options);
 
 #### Parameters
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `sendAsset` | `Asset` | ✅ | Asset the sender is spending |
-| `receiveAsset` | `Asset` | ✅ | Asset the stealth address should receive |
-| `destAmount` | `string` | ✅ | Exact amount of `receiveAsset` desired |
-| `horizonUrl` | `string` | ❌ | Custom Horizon URL (default: deployment's Horizon) |
-| `chain` | `string` | ❌ | Chain deployment key (default: `"stellar"`) |
+| Field          | Type     | Required | Description                                        |
+| -------------- | -------- | -------- | -------------------------------------------------- |
+| `sendAsset`    | `Asset`  | ✅       | Asset the sender is spending                       |
+| `receiveAsset` | `Asset`  | ✅       | Asset the stealth address should receive           |
+| `destAmount`   | `string` | ✅       | Exact amount of `receiveAsset` desired             |
+| `horizonUrl`   | `string` | ❌       | Custom Horizon URL (default: deployment's Horizon) |
+| `chain`        | `string` | ❌       | Chain deployment key (default: `"stellar"`)        |
 
 #### Return value
 
 ```ts
 interface StrictReceivePathResult {
-  sourceAmount: string;  // Quoted cost in sendAsset
-  path: Asset[];         // Optimal intermediate assets for the swap
+  sourceAmount: string; // Quoted cost in sendAsset
+  path: Asset[]; // Optimal intermediate assets for the swap
 }
 ```
 
@@ -98,28 +98,25 @@ interface StrictReceivePathResult {
 
 ```ts
 import { Asset, Keypair, Networks, Server } from '@stellar/stellar-sdk';
-import { 
-  buildPathStealthPayment, 
-  findStrictReceivePath 
+import {
+  buildPathStealthPayment,
+  findStrictReceivePath,
 } from '@wraith-protocol/sdk/chains/stellar';
 
-const USDC_TESTNET = new Asset(
-  'USDC', 
-  'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5'
-);
+const USDC_TESTNET = new Asset('USDC', 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5');
 
 // 1. Find the best path and quoted cost
 const { sourceAmount, path } = await findStrictReceivePath({
   sendAsset: USDC_TESTNET,
   receiveAsset: Asset.native(),
-  destAmount: '100',  // Want to receive 100 XLM
+  destAmount: '100', // Want to receive 100 XLM
 });
 
 console.log(`Quoted cost: ${sourceAmount} USDC`);
-console.log(`Path: ${path.map(a => a.code || 'XLM').join(' → ')}`);
+console.log(`Path: ${path.map((a) => a.code || 'XLM').join(' → ')}`);
 
 // 2. Add slippage protection (0.5% tolerance)
-const slippageBps = 50;  // 0.5%
+const slippageBps = 50; // 0.5%
 const sendMax = (parseFloat(sourceAmount) * (1 + slippageBps / 10_000)).toFixed(7);
 
 // 3. Build the stealth payment transaction
@@ -134,10 +131,10 @@ const { transaction, stealthResult } = buildPathStealthPayment({
   receiveAsset: Asset.native(),
   destAmount: '100',
   sendMax,
-  recipientMeta: 'st:xlm:...',  // Recipient's meta-address
+  recipientMeta: 'st:xlm:...', // Recipient's meta-address
   announcerContract: 'CCJLJ2QRBJAAKIG6ELNQVXLLWMKKWVN5O2FKWUETHZGMPAD4MHK7WVWL',
   networkPassphrase: Networks.TESTNET,
-  path,  // Use the path found by Horizon
+  path, // Use the path found by Horizon
 });
 
 // 4. Sign and submit
@@ -152,10 +149,10 @@ console.log(`Payment sent: ${result.hash}`);
 const { sourceAmount, path } = await findStrictReceivePath({
   sendAsset: Asset.native(),
   receiveAsset: USDC_TESTNET,
-  destAmount: '50',  // Receive 50 USDC
+  destAmount: '50', // Receive 50 USDC
 });
 
-const sendMax = (parseFloat(sourceAmount) * 1.005).toFixed(7);  // 0.5% slippage
+const sendMax = (parseFloat(sourceAmount) * 1.005).toFixed(7); // 0.5% slippage
 
 const { transaction } = buildPathStealthPayment({
   sender: senderKeypair.publicKey(),
@@ -187,11 +184,11 @@ const { transaction } = buildPathStealthPayment({
   sendAsset: USDC_TESTNET,
   receiveAsset: Asset.native(),
   destAmount: '100',
-  sendMax: '50.025',  // Manually calculated or quoted
+  sendMax: '50.025', // Manually calculated or quoted
   recipientMeta: 'st:xlm:...',
   announcerContract: 'CCJLJ...',
   networkPassphrase: Networks.TESTNET,
-  path: [Asset.native()],  // Explicit path: USDC → XLM
+  path: [Asset.native()], // Explicit path: USDC → XLM
 });
 ```
 
@@ -206,7 +203,7 @@ const { transaction } = buildPathStealthPayment({
   sendAsset: Asset.native(),
   receiveAsset: Asset.native(),
   destAmount: '100',
-  sendMax: '100',  // No slippage needed for same asset
+  sendMax: '100', // No slippage needed for same asset
   recipientMeta: 'st:xlm:...',
   announcerContract: 'CCJLJ...',
   networkPassphrase: Networks.TESTNET,
@@ -230,7 +227,7 @@ const { sourceAmount } = await findStrictReceivePath({
 });
 
 // Apply slippage tolerance (in basis points)
-const slippageBps = 50;  // 0.5%
+const slippageBps = 50; // 0.5%
 const sendMax = (parseFloat(sourceAmount) * (1 + slippageBps / 10_000)).toFixed(7);
 
 // Example: if sourceAmount = 50.0 USDC
@@ -238,6 +235,7 @@ const sendMax = (parseFloat(sourceAmount) * (1 + slippageBps / 10_000)).toFixed(
 ```
 
 Common slippage tolerances:
+
 - **10 bps (0.1%)**: Very tight, may fail during volatility
 - **50 bps (0.5%)**: Balanced for most use cases
 - **100 bps (1.0%)**: Loose, maximizes success probability
@@ -249,6 +247,7 @@ Common slippage tolerances:
 ### Native XLM as receiveAsset
 
 When `receiveAsset` is native XLM:
+
 - `pathPaymentStrictReceive` delivers XLM directly to the stealth address
 - If the stealth account doesn't exist, it's created atomically
 - Transaction has 2 operations: swap + announcement
@@ -256,6 +255,7 @@ When `receiveAsset` is native XLM:
 ### Non-native receiveAsset (e.g., USDC)
 
 When `receiveAsset` is a custom asset:
+
 - `pathPaymentStrictReceive` delivers to the sender first
 - A `createClaimableBalance` operation wraps the amount for the stealth address
 - This bypasses the trustline requirement on a brand-new account
@@ -276,7 +276,7 @@ try {
   const { sourceAmount, path } = await findStrictReceivePath({
     sendAsset: USDC,
     receiveAsset: Asset.native(),
-    destAmount: '1000000',  // Unrealistic amount
+    destAmount: '1000000', // Unrealistic amount
   });
 } catch (error) {
   console.error('No payment path found:', error.message);
@@ -318,11 +318,11 @@ INTEGRATION=1 pnpm exec vitest run test/chains/stellar/path-payment.integration.
 
 The SDK provides two similar helpers:
 
-| Feature | `buildPathStealthPayment` | `buildStellarSwapAndStealth` |
-|---|---|---|
+| Feature              | `buildPathStealthPayment`                      | `buildStellarSwapAndStealth`       |
+| -------------------- | ---------------------------------------------- | ---------------------------------- |
 | **Primary use case** | General path payments with Horizon integration | Simplified swap + stealth (legacy) |
-| **Path-finding** | Includes `findStrictReceivePath` helper | Manual path specification only |
-| **Parameter names** | `sendAsset`, `receiveAsset` | `fromAsset`, `toAsset` |
-| **Recommendation** | Use for new implementations | Existing code can continue using |
+| **Path-finding**     | Includes `findStrictReceivePath` helper        | Manual path specification only     |
+| **Parameter names**  | `sendAsset`, `receiveAsset`                    | `fromAsset`, `toAsset`             |
+| **Recommendation**   | Use for new implementations                    | Existing code can continue using   |
 
 Both functions produce equivalent transactions; `buildPathStealthPayment` is the newer, more feature-rich API.

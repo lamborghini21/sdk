@@ -27,7 +27,7 @@ describe('e2e: full stealth payment flow on Stellar', () => {
 
     const decoded = decodeStealthMetaAddress(meta);
 
-    const stealth = await generateStealthAddress(
+    const stealth = generateStealthAddress(
       decoded.spendingPubKey,
       decoded.viewingPubKey,
       fixedSeed,
@@ -42,7 +42,7 @@ describe('e2e: full stealth payment flow on Stellar', () => {
       metadata: stealth.viewTag.toString(16).padStart(2, '0'),
     };
 
-    const matched = await scanAnnouncements(
+    const matched = scanAnnouncements(
       [announcement],
       keys.viewingKey,
       keys.spendingPubKey,

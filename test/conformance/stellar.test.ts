@@ -394,7 +394,7 @@ describe('Stellar Conformance Test Suite', () => {
     test('signatures are 64 bytes and verify for 1000 cases', 30000, () => {
       for (let i = 0; i < NUM_TEST_CASES; i++) {
         const seed = randomSeed();
-        const scalar = seedToScalar(seed);
+        const scalar = ((seedToScalar(seed) % L) + L) % L;
         const pubKey = ed25519.getPublicKey(seed);
         const message = randomBytes32();
 
@@ -414,7 +414,7 @@ describe('Stellar Conformance Test Suite', () => {
     test('same inputs produce same signature for 1000 cases', 30000, () => {
       for (let i = 0; i < NUM_TEST_CASES; i++) {
         const seed = randomSeed();
-        const scalar = seedToScalar(seed);
+        const scalar = ((seedToScalar(seed) % L) + L) % L;
         const pubKey = ed25519.getPublicKey(seed);
         const message = randomBytes32();
 
@@ -430,6 +430,7 @@ describe('Stellar Conformance Test Suite', () => {
     test('scalars are properly clamped for 1000 random seeds', () => {
       for (let i = 0; i < NUM_TEST_CASES; i++) {
         const seed = randomSeed();
+        // This invariant is about the clamped raw scalar, not the mod-L form.
         const scalar = seedToScalar(seed);
 
         // Scalar should be positive

@@ -17,8 +17,6 @@ export type {
   GeneratedStealthAddress,
   MatchedStealthCell,
 } from './types';
-export function scanAnnouncements(
-  announcements: StealthCell[],
-): StealthCell[] {
+export function scanAnnouncements(announcements: StealthCell[]): StealthCell[] {
   return announcements;
 }

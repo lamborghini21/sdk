@@ -5,10 +5,10 @@
 
 ## Current Size
 
-| Format | Size (gzip) | Budget |
-|--------|-------------|--------|
-| ESM (`import *`) | TBD | 20 KB |
-| CJS (`require`) | TBD | 20 KB |
+| Format           | Size (gzip) | Budget |
+| ---------------- | ----------- | ------ |
+| ESM (`import *`) | TBD         | 20 KB  |
+| CJS (`require`)  | TBD         | 20 KB  |
 
 > TBD — run `pnpm build && pnpm size` after installation to populate
 > actual measurements, then update this table.

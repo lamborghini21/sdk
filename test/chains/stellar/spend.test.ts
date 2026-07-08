@@ -14,11 +14,7 @@ const fixedSeed = new Uint8Array(32).fill(0xcc);
 describe('deriveStealthPrivateScalar', () => {
   test('returns a valid bigint scalar', async () => {
     const keys = deriveStealthKeys(testSig);
-    const stealth = await generateStealthAddress(
-      keys.spendingPubKey,
-      keys.viewingPubKey,
-      fixedSeed,
-    );
+    const stealth = generateStealthAddress(keys.spendingPubKey, keys.viewingPubKey, fixedSeed);
 
     const scalar = deriveStealthPrivateScalar(
       keys.spendingScalar,
@@ -32,11 +28,7 @@ describe('deriveStealthPrivateScalar', () => {
 
   test('derived scalar produces the stealth public key', async () => {
     const keys = deriveStealthKeys(testSig);
-    const stealth = await generateStealthAddress(
-      keys.spendingPubKey,
-      keys.viewingPubKey,
-      fixedSeed,
-    );
+    const stealth = generateStealthAddress(keys.spendingPubKey, keys.viewingPubKey, fixedSeed);
 
     const scalar = deriveStealthPrivateScalar(
       keys.spendingScalar,
@@ -52,11 +44,7 @@ describe('deriveStealthPrivateScalar', () => {
 
   test('deterministic', async () => {
     const keys = deriveStealthKeys(testSig);
-    const stealth = await generateStealthAddress(
-      keys.spendingPubKey,
-      keys.viewingPubKey,
-      fixedSeed,
-    );
+    const stealth = generateStealthAddress(keys.spendingPubKey, keys.viewingPubKey, fixedSeed);
 
     const s1 = deriveStealthPrivateScalar(
       keys.spendingScalar,
