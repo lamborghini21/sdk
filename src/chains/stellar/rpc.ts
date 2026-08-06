@@ -22,8 +22,14 @@ export interface RpcClientConfig {
 export interface RpcClient {
   request<T = unknown>(method: string, path: string, body?: unknown): Promise<T>;
   getHealthyEndpoint(): string;
-  on(event: 'endpointFailover', listener: (detail: { from: string; to: string; reason: string }) => void): void;
-  off(event: 'endpointFailover', listener: (detail: { from: string; to: string; reason: string }) => void): void;
+  on(
+    event: 'endpointFailover',
+    listener: (detail: { from: string; to: string; reason: string }) => void,
+  ): void;
+  off(
+    event: 'endpointFailover',
+    listener: (detail: { from: string; to: string; reason: string }) => void,
+  ): void;
 }
 
 interface EndpointState {
@@ -122,7 +128,11 @@ export function createRpcClient(config: RpcClientConfig): RpcClient {
   }
 
   async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const maxAttempts = states.length * (maxRetries + 1);
+    // Each endpoint needs at least `failureThreshold` attempts for the circuit
+    // breaker to trip and trigger failover — otherwise a low maxRetries could
+    // exhaust the loop before failover is ever reachable.
+    const maxAttemptsPerEndpoint = Math.max(maxRetries + 1, failureThreshold);
+    const maxAttempts = states.length * maxAttemptsPerEndpoint;
     let lastError: Error | undefined;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -130,7 +140,9 @@ export function createRpcClient(config: RpcClientConfig): RpcClient {
       const now = Date.now();
 
       if (!state.healthy && now < state.cooldownUntil) {
-        const failed = attemptFailover(`Endpoint ${state.url} is in cooldown (${Math.ceil((state.cooldownUntil - now) / 1000)}s remaining)`);
+        const failed = attemptFailover(
+          `Endpoint ${state.url} is in cooldown (${Math.ceil((state.cooldownUntil - now) / 1000)}s remaining)`,
+        );
         if (!failed) {
           throw new RPCRetryExhaustedError(state.url, maxAttempts, 'All endpoints are in cooldown');
         }
@@ -161,9 +173,15 @@ export function createRpcClient(config: RpcClientConfig): RpcClient {
           state.consecutiveFailures++;
           if (state.consecutiveFailures >= failureThreshold) {
             markUnhealthy(state);
-            const failed = attemptFailover(`HTTP ${response.status} on ${state.url} (${state.consecutiveFailures} consecutive failures)`);
+            const failed = attemptFailover(
+              `HTTP ${response.status} on ${state.url} (${state.consecutiveFailures} consecutive failures)`,
+            );
             if (!failed) {
-              throw new RPCRetryExhaustedError(state.url, maxAttempts, `All endpoints exhausted after HTTP ${response.status}`);
+              throw new RPCRetryExhaustedError(
+                state.url,
+                maxAttempts,
+                `All endpoints exhausted after HTTP ${response.status}`,
+              );
             }
             continue;
           }
@@ -176,7 +194,10 @@ export function createRpcClient(config: RpcClientConfig): RpcClient {
         const data = await response.json().catch(() => ({}));
         throw new RPCRequestError(url, response.status, JSON.stringify(data));
       } catch (err) {
-        if (err instanceof RPCRequestError && !DEFAULT_RETRYABLE_STATUSES.includes(err.statusCode)) {
+        if (
+          err instanceof RPCRequestError &&
+          !DEFAULT_RETRYABLE_STATUSES.includes(err.statusCode)
+        ) {
           throw err;
         }
 
@@ -191,7 +212,11 @@ export function createRpcClient(config: RpcClientConfig): RpcClient {
           markUnhealthy(state);
           const failed = attemptFailover(`Network error on ${state.url}: ${lastError.message}`);
           if (!failed) {
-            throw new RPCRetryExhaustedError(state.url, maxAttempts, `All endpoints exhausted: ${lastError.message}`);
+            throw new RPCRetryExhaustedError(
+              state.url,
+              maxAttempts,
+              `All endpoints exhausted: ${lastError.message}`,
+            );
           }
           continue;
         }
