@@ -100,6 +100,8 @@ export class ContractRevertError extends WraithContractError {
     // (undocumented)
     readonly code = "WRAITH/CONTRACT/CONTRACT_REVERT";
     // (undocumented)
+    describe(): string;
+    // (undocumented)
     readonly reason: string;
 }
 
@@ -147,6 +149,8 @@ export class ECDHFailedError extends WraithCryptoError {
     constructor(reason: string);
     // (undocumented)
     readonly code = "WRAITH/CRYPTO/ECDH_FAILED";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -205,6 +209,8 @@ export class InsufficientAuthError extends WraithContractError {
     constructor(required?: string, actual?: string);
     // (undocumented)
     readonly code = "WRAITH/CONTRACT/INSUFFICIENT_AUTH";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -212,6 +218,8 @@ export class InsufficientBalanceError extends WraithBuilderError {
     constructor(required: string | bigint, actual: string | bigint, asset?: string);
     // (undocumented)
     readonly code = "WRAITH/BUILDER/INSUFFICIENT_BALANCE";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -219,6 +227,8 @@ export class InvalidMetaAddressError extends WraithInputError {
     constructor(metaAddress: string, reason?: string);
     // (undocumented)
     readonly code = "WRAITH/INPUT/INVALID_META_ADDRESS";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -226,6 +236,8 @@ export class InvalidNameError extends WraithInputError {
     constructor(name: string, reason?: string);
     // (undocumented)
     readonly code = "WRAITH/INPUT/INVALID_NAME";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -233,6 +245,8 @@ export class InvalidScalarError extends WraithInputError {
     constructor(scalar: string | bigint, reason?: string);
     // (undocumented)
     readonly code = "WRAITH/INPUT/INVALID_SCALAR";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -240,6 +254,8 @@ export class InvalidSignatureError extends WraithInputError {
     constructor(signature: string | Uint8Array, expectedLength?: number, actualLength?: number);
     // (undocumented)
     readonly code = "WRAITH/INPUT/INVALID_SIGNATURE";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -269,6 +285,8 @@ export class KeyDerivationFailedError extends WraithCryptoError {
     constructor(reason: string);
     // (undocumented)
     readonly code = "WRAITH/CRYPTO/KEY_DERIVATION_FAILED";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -299,6 +317,8 @@ export class NameAlreadyRegisteredError extends WraithContractError {
     constructor(name: string, owner?: string);
     // (undocumented)
     readonly code = "WRAITH/CONTRACT/NAME_ALREADY_REGISTERED";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -306,6 +326,8 @@ export class NameNotFoundError extends WraithContractError {
     constructor(name: string);
     // (undocumented)
     readonly code = "WRAITH/CONTRACT/NAME_NOT_FOUND";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -354,6 +376,8 @@ export class RetentionExceededError extends WraithNetworkError {
     constructor(limit: number, actual: number);
     // (undocumented)
     readonly code = "WRAITH/NETWORK/RETENTION_EXCEEDED";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -361,6 +385,8 @@ export class RPCRequestError extends WraithNetworkError {
     constructor(url: string, statusCode: number, responseText?: string);
     // (undocumented)
     readonly code = "WRAITH/NETWORK/RPC_REQUEST";
+    // (undocumented)
+    describe(): string;
     // (undocumented)
     readonly statusCode: number;
 }
@@ -370,6 +396,8 @@ export class RPCRetryExhaustedError extends WraithNetworkError {
     constructor(url: string, attempts: number, lastError?: string);
     // (undocumented)
     readonly code = "WRAITH/NETWORK/RPC_RETRY_EXHAUSTED";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public (undocumented)
@@ -486,6 +514,8 @@ export class UnsupportedAssetError extends WraithBuilderError {
     constructor(asset: string, chain?: string);
     // (undocumented)
     readonly code = "WRAITH/BUILDER/UNSUPPORTED_ASSET";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public
@@ -523,6 +553,8 @@ export class ViewTagMismatchError extends WraithCryptoError {
     constructor(expectedTag: number, actualTag: number);
     // (undocumented)
     readonly code = "WRAITH/CRYPTO/VIEW_TAG_MISMATCH";
+    // (undocumented)
+    describe(): string;
 }
 
 // @public
@@ -613,6 +645,7 @@ export abstract class WraithError extends Error {
     abstract readonly code: string;
     // (undocumented)
     readonly context?: Record<string, any> | undefined;
+    describe(): string;
     // (undocumented)
     readonly docsLink: string;
     // (undocumented)
