@@ -201,6 +201,9 @@ export interface FreighterWalletApi {
     }>;
 }
 
+// @public
+export function getTracer(): Tracer;
+
 // @public (undocumented)
 export function installReactNativePolyfills(): void;
 
@@ -330,6 +333,9 @@ export class NameNotFoundError extends WraithContractError {
     describe(): string;
 }
 
+// @public
+export const NOOP_TRACER: Tracer;
+
 // @public (undocumented)
 interface Notification_2 {
     // (undocumented)
@@ -433,6 +439,9 @@ export interface Schedule {
     status: 'active' | 'paused' | 'cancelled';
 }
 
+// @public
+export function setTracer(tracer?: Tracer | null): void;
+
 // @public (undocumented)
 export interface SolanaChainInput {
     // Warning: (ae-forgotten-export) The symbol "Announcement_2" needs to be exported by the entry point index.d.ts
@@ -471,6 +480,13 @@ export interface SolanaWalletAdapterLike {
     signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
 }
 
+// @public
+export interface Span {
+    end(): void;
+    recordException(error: unknown): void;
+    setAttribute(key: string, value: string | number | boolean): void;
+}
+
 // @public (undocumented)
 export interface StellarChainInput {
     // Warning: (ae-forgotten-export) The symbol "Announcement$1" needs to be exported by the entry point index.d.ts
@@ -499,6 +515,11 @@ export interface ToolCall {
     name: string;
     // (undocumented)
     status: string;
+}
+
+// @public
+export interface Tracer {
+    startSpan(name: string, attributes?: Record<string, string | number | boolean>): Span;
 }
 
 // @public (undocumented)
@@ -562,6 +583,9 @@ export type WalletAdapter = StellarWalletAdapter | EvmWalletAdapter | SolanaChai
 
 // @public
 export type WalletAdapterChain = 'stellar' | 'evm' | 'solana';
+
+// @public
+export function withSpan<T>(name: string, attributes: Record<string, string | number | boolean> | undefined, fn: (span: Span) => T, tracer?: Tracer): T;
 
 // @public (undocumented)
 export class Wraith {
