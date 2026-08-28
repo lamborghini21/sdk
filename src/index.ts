@@ -46,6 +46,8 @@ export type {
   ScanAllInput,
   MatchedAnnouncement,
   SupportedChain,
+  ChainScannerAdapter,
+  CustomChainInput,
   EvmChainInput,
   StellarChainInput,
   SolanaChainInput,
